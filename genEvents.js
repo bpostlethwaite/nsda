@@ -16,9 +16,8 @@ var server = dnode({
 
 server.listen(5001)
 
-function genEvents(cb) {
-  var breq = {}
-  breq.events = [
+function genEvents(json, cb) {
+  json.events = [
     /*
      * Object containing event requests
      */
@@ -28,6 +27,6 @@ function genEvents(cb) {
   , "KMI CD 1999 01 04 02 41 57.5 1999 01 04 02 43 57.5  1 BHZ"
   ]
 
-  breq.label = "bpostTest" // Label for finding file name in ftp
-  cb(null, breq)
+  json.label = "bpostTest" // Label for finding file name in ftp
+  cb(null, json)
 }

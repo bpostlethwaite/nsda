@@ -18,7 +18,7 @@ var server = dnode({
 server.listen(5003)
 
 
-function mail(breqtext, cb) {
+function mail(json, cb) {
 /*
  * Mail breqfast request
  */
@@ -37,13 +37,16 @@ function mail(breqtext, cb) {
     to: "post.ben.here@gmail.com", // list of receivers
 //    to: "breq_fast@iris.washington.edu", // list of receivers
     subject: "", // Subject line
-    text: breqtext
+    text: json.data
   }
 
   // send mail with defined transport object
   smtpTransport.sendMail(mailOptions, function(error, response){
-    if(error) cb(error)
-    else cb("Message sent: " + response.message)
+    error = "some error"
+    if(error) {
+      cb(error)
+    }
+    else cb(null, response.msg)
   })
 }
 

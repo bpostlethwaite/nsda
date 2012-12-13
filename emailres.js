@@ -4,17 +4,14 @@
  * server. If it finds these it parses email
  * into required details, logs success or failure
  * and label, and then sends details to getRequest.
+ * It should timeout after a set period - and just
+ * send a Timeout error message back to client.
  */
 
 var dnode = require('dnode')
   , util = require('util')
   , ImapConnection = require('imap').ImapConnection
 
-
-function emailres (reqobj, cb) {
-  reqobj["emailres"] = true
-  cb(reqobj)
-}
 
 var server = dnode({
   service: emailres

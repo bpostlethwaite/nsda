@@ -61,11 +61,11 @@ function buildbreq(spec) {
   return that
 }
 
-function genBreq(breqspec, cb) {
+function genBreq(json, cb) {
   /*
-   * Test service
-   *
+   * generate the breqfast request
+   * text body to email to IRIS
    */
-  var breqstring = buildbreq(breqspec).stringify()
-  cb(breqstring)
+  var breqstring = buildbreq(json.data).stringify()
+  cb(null, json)
 }

@@ -19,56 +19,53 @@ var server = dnode({
 
 server.listen(5004)
 
-
+/*
+ * Imap configuration
+ */
 var imap = new ImapConnection(
   {
-    username: 'post.ben.here@gmail.com'
-  , password: 'dance magic'
+    username: 'auto.iris.response@gmail.com'
+  , password: 'auto iris key'
   , host: 'imap.gmail.com'
   , port: 993
   , secure: true
   })
 
-function herr(err) {
+/*
+ * Error Handling
+ */
+function handleError(err) {
   console.log('log: ' + err)
 }
 
-function openBox (cb) {
-  imap.connect(function(err) {
-    if (err) return herr(err)
-    imap.openBox('usArray', false, cb)
-  })
-}
+function mailHandler (cb) {
+  return function (err, mailbox) {
+    if (err) return handleError(err)
+    imap.search(['UNSEEN'] , function(err, results) {
+      if (err) return handleError(err)
+      if (results.length === 0) return handleError("No emails match selection")
 
-function handleMail (err, mailbox) {
-  if (err) return herr(err);
-  imap.search(['UNSEEN'] , function(err, results) {
-    if (err) return herr(err)
-    if (results.length === 0) return herr("No emails match selection")
+      var fetch = imap.fetch(results, {
+        markSeen: true
+      , request: {headers: ['subject', 'body']}
+      })
+      fetch.on('message', function (msg) {
 
-    var fetch = imap.fetch(results, {
-      markSeen: true
-    , request:
-      {
-        headers: ['subject', 'body']
-      }
-    })
-    fetch.on('message', function (msg) {
-
-      msg.on('end', function () {
-        extract(msg)
-        // msg.headers is now an object containing the requested headers ...
-        console.log('Finished message. Headers ' + show(msg.headers));
+        msg.on('end', function () {
+          var status = extract(msg)
+          // msg.headers is now an object containing the requested headers ...
+          console.log('Finished message. Headers ' + show(msg.headers))
+        })
+      })
+      fetch.on('end', function() {
+        console.log('Done fetching all messages!')
+        //imap.logout()
       })
     })
-    fetch.on('end', function() {
-      console.log('Done fetching all messages!')
-      imap.logout()
-    })
-  })
+  }
 }
 
-//function msgparse(msg, msgtype) {
+function msgparse(body, msgtype) {
 
 
 function extract(m, cb) {
@@ -102,14 +99,14 @@ function extract(m, cb) {
      * typeA email
      */
     case "Your request ":
-    status = msgparse(m, 'A');
+    status = msgparse(m.body, 'A');
     break;
 
     /*
      * typeB email
      */
     case "IRIS received":
-    status = msgparse(m, 'B');
+    status = msgparse(m.body, 'B');
     break;
 
     /*
@@ -123,10 +120,23 @@ function extract(m, cb) {
      */
     default:
     status = {
-      status: "unknown",
-      info : m.subject
+      data: m.subject,
+      info : "email subject unknown"
     };
     break;
 
   }
+
+  return status
 }
+
+
+
+function openBox (cb) {
+  imap.connect(function(err) {
+    if (err) return handleError(err)
+    imap.openBox('INBOX', false, mailHandler() )
+  })
+}
+
+

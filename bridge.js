@@ -1,10 +1,9 @@
 /*
- * Dnode test.
+ * Main control. Call services.
+ *
  *
  */
-
-
-var ss = require("./serviceStack")()
+var ss = require("blunderbuss")()
 
 var services = {
   "genEvents": 5001
@@ -15,4 +14,4 @@ var services = {
 
 ss.register(services)
 ss.logger(true)
-ss.start()
+ss.start({"data":2})
